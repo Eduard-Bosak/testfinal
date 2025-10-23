@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ person.name|default:"Сотрудник" }} - Подробная информация</title>
+    {% load static %}
+    <style>
+        /* ========================================
+           КОММЕНТАРИЙ ДЛЯ СТУДЕНТКИ:
+           Стили для детальной страницы сотрудника
+           ======================================== */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #dc3545;
+        }
+        
+        header img {
+            width: 100px;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            color: #333;
+            margin: 10px 0;
+        }
+        
+        /* К6: Заглавное фото */
+        .main-photo {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .main-photo img {
+            max-width: 400px;
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .no-main-photo {
+            width: 400px;
+            max-width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 120px;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* К6: Информационные блоки */
+        .info-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .info-section h2 {
+            color: #dc3545;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        
+        .info-row {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+            align-items: center;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .info-value {
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+        }
+        
+        .badge-frontend { background: #3498db; }
+        .badge-backend { background: #e74c3c; }
+        .badge-testing { background: #f39c12; }
+        .badge-management { background: #9b59b6; }
+        .badge-male { background: #2196F3; }
+        .badge-female { background: #E91E63; }
+        
+        /* К6: Галерея изображений */
+        .gallery-section {
+            margin: 30px 0;
+        }
+        
+        .gallery-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .gallery-item {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.3s;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .description-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        .nav-links {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .nav-links a {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 0 10px;
+            transition: background 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background: #c82333;
+        }
+        
+        .experience-highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .experience-highlight span {
+            font-size: 36px;
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ========================================
+             ШАПКА СТРАНИЦЫ
+             ======================================== -->
+        <header>
+            <img src="{% static 'img/1.jpeg' %}" alt="Логотип компании" />
+            <h1>👤 Личная карточка сотрудника</h1>
+        </header>
+
+        <!-- ========================================
+             К6: ЗАГЛАВНОЕ ФОТО (первое в галерее)
+             КОММЕНТАРИЙ: Это главное фото сотрудника
+             ======================================== -->
+        <div class="main-photo">
+            {% if person.gallery %}
+                <img src="{{ person.gallery.url }}" alt="{{ person.name }}" />
+            {% else %}
+                <div class="no-main-photo">👤</div>
+            {% endif %}
+        </div>
+
+        <!-- ========================================
+             К6: ОСНОВНАЯ ИНФОРМАЦИЯ
+             Имя, фамилия, пол
+             ======================================== -->
+        <div class="info-section">
+            <h2>📋 Основная информация</h2>
+            
+            <div class="info-row">
+                <div class="info-label">ФИО:</div>
+                <div class="info-value">
+                    <strong>{{ person.name|default:"Не указано" }}</strong>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">Пол:</div>
+                <div class="info-value">
+                    {% if person.sex == 'male' %}
+                        <span class="badge badge-male">👨 {{ person.get_sex_display }}</span>
+                    {% elif person.sex == 'female' %}
+                        <span class="badge badge-female">👩 {{ person.get_sex_display }}</span>
+                    {% else %}
+                        Не указан
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================
+             К6: ПРОФЕССИОНАЛЬНЫЕ НАВЫКИ
+             Навыки с уровнями освоения
+             ======================================== -->
+        <div class="info-section">
+            <h2>💼 Профессиональные навыки</h2>
+            
+            <div class="info-row">
+                <div class="info-label">Специализация:</div>
+                <div class="info-value">
+                    {% if person.skills == 'frontend' %}
+                        <span class="badge badge-frontend">💻 {{ person.get_skills_display }}</span>
+                    {% elif person.skills == 'backend' %}
+                        <span class="badge badge-backend">⚙️ {{ person.get_skills_display }}</span>
+                    {% elif person.skills == 'testing' %}
+                        <span class="badge badge-testing">🔍 {{ person.get_skills_display }}</span>
+                    {% elif person.skills == 'project_management' %}
+                        <span class="badge badge-management">📊 {{ person.get_skills_display }}</span>
+                    {% else %}
+                        Не указана
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">Уровень освоения:</div>
+                <div class="info-value">
+                    {% if person.skill_level %}
+                        <strong>{{ person.skill_level }}/10</strong>
+                        {% if person.skill_level|add:"0" >= 8 %}
+                            ⭐⭐⭐ (Эксперт)
+                        {% elif person.skill_level|add:"0" >= 5 %}
+                            ⭐⭐ (Средний)
+                        {% else %}
+                            ⭐ (Начинающий)
+                        {% endif %}
+                    {% else %}
+                        Не указан
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================
+             К6: СТАЖ РАБОТЫ В КОМПАНИИ (В ДНЯХ)
+             КОММЕНТАРИЙ: Используем метод get_work_experience_days
+             ======================================== -->
+        <div class="experience-highlight">
+            ⏱️ Стаж работы в компании
+            <span>
+                {% if person.employment_date %}
+                    {{ person.get_work_experience_days }} дней
+                {% else %}
+                    Не указан
+                {% endif %}
+            </span>
+            {% if person.employment_date %}
+            <div style="font-size: 14px; margin-top: 10px; opacity: 0.9;">
+                Принят на работу: {{ person.employment_date|date:"d.m.Y" }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ========================================
+             К6: НОМЕР СТОЛА
+             КОММЕНТАРИЙ: Пока не реализовано в модели,
+             можно добавить связь с моделью Place
+             ======================================== -->
+        <div class="info-section">
+            <h2>🪑 Рабочее место</h2>
+            
+            <div class="info-row">
+                <div class="info-label">Номер стола:</div>
+                <div class="info-value">
+                    <!-- TODO: Добавить связь с моделью Place -->
+                    <em>Не указан (требуется доработка модели)</em>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================
+             ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ
+             ======================================== -->
+        {% if person.description %}
+        <div class="info-section">
+            <h2>📝 О сотруднике</h2>
+            <div class="description-box">
+                {{ person.description }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ========================================
+             К6: ГАЛЕРЕЯ ИЗОБРАЖЕНИЙ
+             КОММЕНТАРИЙ: Сейчас у нас только одно изображение,
+             но можно расширить модель для нескольких фото
+             ======================================== -->
+        {% if person.gallery %}
+        <div class="gallery-section">
+            <h2>🖼️ Галерея фотографий</h2>
+            <div class="gallery-grid">
+                <img src="{{ person.gallery.url }}" alt="{{ person.name }}" class="gallery-item" />
+                <!-- TODO: Если будет несколько фото, добавить их здесь -->
+            </div>
+            <p style="color: #999; font-size: 14px; margin-top: 10px;">
+                <em>Примечание: Для полной галереи нужно расширить модель (использовать отдельную модель Gallery)</em>
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- ========================================
+             НАВИГАЦИЯ
+             ======================================== -->
+        <div class="nav-links">
+            <a href="{% url 'workers:list' %}">📋 К списку сотрудников</a>
+            <a href="{% url 'workers:home' %}">🏠 На главную</a>
+        </div>
+    </div>
+</body>
+</html>

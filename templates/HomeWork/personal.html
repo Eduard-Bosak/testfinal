@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список всех сотрудников</title>
+    {% load static %}
+    <style>
+        /* ========================================
+           КОММЕНТАРИЙ ДЛЯ СТУДЕНТКИ:
+           Стили для страницы со списком сотрудников
+           ======================================== */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #28a745;
+        }
+        
+        header img {
+            width: 100px;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            color: #333;
+            margin: 10px 0;
+        }
+        
+        /* К5: Стили для карточек с пагинацией */
+        .employees-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .employee-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            background: #fff;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .employee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: #28a745;
+        }
+        
+        .employee-photo {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .no-photo {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        
+        .employee-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .employee-info {
+            font-size: 14px;
+            color: #555;
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .employee-info:last-child {
+            border-bottom: none;
+        }
+        
+        .employee-info strong {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: white;
+        }
+        
+        .badge-frontend { background: #3498db; }
+        .badge-backend { background: #e74c3c; }
+        .badge-testing { background: #f39c12; }
+        .badge-management { background: #9b59b6; }
+        .badge-default { background: #95a5a6; }
+        
+        /* К5: ПАГИНАЦИЯ - стили для навигации по страницам */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 40px 0;
+            gap: 10px;
+        }
+        
+        .pagination a,
+        .pagination span {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+        }
+        
+        .pagination a:hover {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .pagination .current {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+            font-weight: bold;
+        }
+        
+        .pagination .disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .nav-links {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .nav-links a {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background: #218838;
+        }
+        
+        .stats {
+            text-align: center;
+            color: #666;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ========================================
+             ШАПКА СТРАНИЦЫ
+             ======================================== -->
+        <header>
+            <img src="{% static 'img/1.jpeg' %}" alt="Логотип компании" />
+            <h1>📋 Личные дела всех сотрудников</h1>
+        </header>
+
+        <!-- ========================================
+             СТАТИСТИКА
+             ======================================== -->
+        <div class="stats">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+            (всего сотрудников: {{ page_obj.paginator.count }})
+        </div>
+
+        <!-- ========================================
+             К5: КАРТОЧКИ СОТРУДНИКОВ (по 10 на странице)
+             К2: С полной информацией
+             ======================================== -->
+        {% if page_obj %}
+        <div class="employees-grid">
+            <!-- КОММЕНТАРИЙ ДЛЯ СТУДЕНТКИ:
+                 page_obj - это объект пагинации
+                 page_obj.object_list или просто page_obj содержит сотрудников текущей страницы
+                 Каждый employee - полный объект Person со всеми полями -->
+            {% for employee in page_obj %}
+            <div class="employee-card" onclick="window.location.href='{% url 'workers:detail' employee.pk %}'">
+                <!-- К2: Фото сотрудника -->
+                {% if employee.gallery %}
+                    <img src="{{ employee.gallery.url }}" alt="{{ employee.name }}" class="employee-photo" />
+                {% else %}
+                    <div class="no-photo">👤</div>
+                {% endif %}
+                
+                <!-- К2: Имя -->
+                <div class="employee-name">
+                    {{ employee.name|default:"Без имени" }}
+                </div>
+                
+                <!-- К2: Пол -->
+                <div class="employee-info">
+                    <strong>Пол:</strong> {{ employee.get_sex_display|default:"Не указан" }}
+                </div>
+                
+                <!-- К2: Навыки с бейджем -->
+                <div class="employee-info">
+                    <strong>Навыки:</strong>
+                    {% if employee.skills == 'frontend' %}
+                        <span class="badge badge-frontend">{{ employee.get_skills_display }}</span>
+                    {% elif employee.skills == 'backend' %}
+                        <span class="badge badge-backend">{{ employee.get_skills_display }}</span>
+                    {% elif employee.skills == 'testing' %}
+                        <span class="badge badge-testing">{{ employee.get_skills_display }}</span>
+                    {% elif employee.skills == 'project_management' %}
+                        <span class="badge badge-management">{{ employee.get_skills_display }}</span>
+                    {% else %}
+                        <span class="badge badge-default">Не указаны</span>
+                    {% endif %}
+                </div>
+                
+                <!-- К2: Уровень навыков -->
+                <div class="employee-info">
+                    <strong>Уровень:</strong> 
+                    {{ employee.skill_level|default:"—" }}/10
+                    {% if employee.skill_level %}
+                        {% if employee.skill_level|add:"0" >= 8 %}⭐⭐⭐{% elif employee.skill_level|add:"0" >= 5 %}⭐⭐{% else %}⭐{% endif %}
+                    {% endif %}
+                </div>
+                
+                <!-- К2: Стаж работы -->
+                <div class="employee-info">
+                    <strong>Стаж:</strong> 
+                    {% if employee.employment_date %}
+                        {{ employee.get_work_experience_days }} дней
+                        ({{ employee.employment_date|date:"d.m.Y" }})
+                    {% else %}
+                        Не указан
+                    {% endif %}
+                </div>
+                
+                <!-- Описание (если есть) -->
+                {% if employee.description %}
+                <div class="employee-info">
+                    <strong>О себе:</strong> {{ employee.description|truncatewords:15 }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="text-align: center; color: #999;">Сотрудники не найдены.</p>
+        {% endif %}
+
+        <!-- ========================================
+             К5: ПАГИНАЦИЯ (навигация по страницам)
+             КОММЕНТАРИЙ: Это позволяет переключаться между страницами
+             ======================================== -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            <!-- Кнопка "Первая страница" -->
+            {% if page_obj.has_previous %}
+                <a href="?page=1">« Первая</a>
+                <a href="?page={{ page_obj.previous_page_number }}">‹ Назад</a>
+            {% else %}
+                <span class="disabled">« Первая</span>
+                <span class="disabled">‹ Назад</span>
+            {% endif %}
+            
+            <!-- Номера страниц -->
+            <span class="current">
+                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            <!-- Кнопка "Следующая страница" -->
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Вперёд ›</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">Последняя »</a>
+            {% else %}
+                <span class="disabled">Вперёд ›</span>
+                <span class="disabled">Последняя »</span>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- ========================================
+             НАВИГАЦИЯ
+             ======================================== -->
+        <div class="nav-links">
+            <a href="{% url 'workers:home' %}">🏠 Вернуться на главную</a>
+        </div>
+    </div>
+</body>
+</html>
